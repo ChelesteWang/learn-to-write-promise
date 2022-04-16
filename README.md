@@ -105,3 +105,86 @@ myPromise.finally(function (val) {
   console.log("value:", val);
 });
 ```
+
+## 不建议将 async 函数传递给 new Promise 的构造函数。
+
+错误案例
+
+```js
+new Promise(async (_resolve, _reject) => {});
+```
+
+正确案例
+
+```js
+new Promise((_resolve, _reject) => {});
+```
+
+## 不建议在循环里使用 await，有这种写法通常意味着程序没有充分利用 JavaScript 的事件驱动。
+
+错误案例
+
+```js
+for (const url of urls) {
+  const response = await fetch(url);
+}
+```
+
+正确案例
+
+```js
+const responses = [];
+for (const url of urls) {
+  const response = fetch(url);
+  responses.push(response);
+}
+
+await Promise.all(responses);
+```
+
+## 不建议将赋值操作和 await 组合使用，这可能会导致条件竞争。
+
+错误案例
+
+```js
+let totalPosts = 0;
+
+async function getPosts(userId) {
+  const users = [
+    { id: 1, posts: 5 },
+    { id: 2, posts: 3 },
+  ];
+  await sleep(Math.random() * 1000);
+  return users.find((user) => user.id === userId).posts;
+}
+
+async function addPosts(userId) {
+  totalPosts += await getPosts(userId);
+}
+
+await Promise.all([addPosts(1), addPosts(2)]);
+console.log("Post count:", totalPosts);
+```
+
+正确案例
+
+```js
+let _totalPosts = 0;
+
+async function getPosts(userId) {
+  const users = [
+    { id: 1, posts: 5 },
+    { id: 2, posts: 3 },
+  ];
+  await sleep(Math.random() * 1000);
+  return users.find((user) => user.id === userId).posts;
+}
+
+async function addPosts(userId) {
+  const posts = await getPosts(userId);
+  totalPosts += posts; // variable is read and immediately updated
+}
+
+await Promise.all([addPosts(1), addPosts(2)]);
+console.log("Post count:", totalPosts);
+```

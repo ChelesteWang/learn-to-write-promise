@@ -132,6 +132,8 @@ for (const url of urls) {
 
 正确案例
 
+使用 Promise.all 处理多个并发 Promise
+
 ```js
 const responses = [];
 for (const url of urls) {
@@ -187,4 +189,90 @@ async function addPosts(userId) {
 
 await Promise.all([addPosts(1), addPosts(2)]);
 console.log("Post count:", totalPosts);
+```
+
+## 返回异步结果时不一定要写 await ，如果你要等待一个 Promise，然后又要立刻返回它，这可能是不必要的。
+
+错误案例
+
+```js
+async () => {
+  try {
+    return await getUser(userId);
+  } catch (error) {
+    // Handle getUser error
+  }
+};
+```
+
+正确案例
+
+```js
+async () => {
+  try {
+    const user = await getUser(userId);
+    return user;
+  } catch (error) {
+    // Handle getUser error
+  }
+};
+```
+
+## 建议在 reject Promise 时强制使用 Error 对象，这样可以更方便的追踪错误堆栈。
+
+错误案例
+
+```js
+Promise.reject("An error occurred");
+```
+
+正确案例
+
+```js
+Promise.reject(new Error("An error occurred"));
+```
+
+## 不建议 await 非 Promise 函数或值。
+
+错误案例
+
+```js
+function getValue() {
+  return someValue;
+}
+
+await getValue();
+```
+
+正确案例
+
+```js
+async function getValue() {
+  return someValue;
+}
+
+await getValue();
+```
+
+## 强制在异步回调里进行异常处理。
+
+错误案例
+
+```js
+function callback(err, data) {
+  console.log(data);
+}
+```
+
+正确案例
+
+```js
+function callback(err, data) {
+  if (err) {
+    console.log(err);
+    return;
+  }
+
+  console.log(data);
+}
 ```

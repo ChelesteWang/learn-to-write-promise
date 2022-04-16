@@ -70,11 +70,11 @@ Promise.resolve()
 
 ```js
 myPromise.then(function (val) {
-  return Promise.resolve(val * 2)
-})
+  return Promise.resolve(val * 2);
+});
 myPromise.then(function (val) {
-  return Promise.reject('bad thing')
-})
+  return Promise.reject("bad thing");
+});
 ```
 
 正确案例
@@ -85,5 +85,23 @@ myPromise.then(function (val) {
 });
 myPromise.then(function (val) {
   throw "bad thing";
+});
+```
+
+## 不允许在 finally() 中使用返回语句
+
+错误案例
+
+```js
+myPromise.finally(function (val) {
+  return val;
+});
+```
+
+正确案例
+
+```js
+myPromise.finally(function (val) {
+  console.log("value:", val);
 });
 ```

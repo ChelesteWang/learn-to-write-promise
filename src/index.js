@@ -75,3 +75,88 @@ myPromise.then(function (val) {
 myPromise.then(function (val) {
   throw "bad thing";
 });
+
+/**
+ * 不允许在 finally() 中使用返回语句
+ */
+
+// false
+myPromise.finally(function (val) {
+  console.log("value:", val);
+});
+
+// true
+myPromise.finally(function (val) {
+  return val;
+});
+
+/**
+ * 不建议将 async 函数传递给 new Promise 的构造函数。
+ */
+
+// false
+new Promise(async (_resolve, _reject) => {});
+
+// true
+new Promise((_resolve, _reject) => {});
+
+/**
+ * 不建议在循环里使用 await，有这种写法通常意味着程序没有充分利用 JavaScript 的事件驱动。
+ */
+
+// false
+for (const url of urls) {
+  const response = await fetch(url);
+}
+
+/**
+ * 不建议将赋值操作和 await 组合使用，这可能会导致条件竞争。
+ * */
+
+// true
+const responses = [];
+for (const url of urls) {
+  const response = fetch(url);
+  responses.push(response);
+}
+
+await Promise.all(responses);
+
+// false
+let totalPosts = 0;
+
+async function getPosts(userId) {
+  const users = [
+    { id: 1, posts: 5 },
+    { id: 2, posts: 3 },
+  ];
+  await sleep(Math.random() * 1000);
+  return users.find((user) => user.id === userId).posts;
+}
+
+async function addPosts(userId) {
+  totalPosts += await getPosts(userId);
+}
+
+await Promise.all([addPosts(1), addPosts(2)]);
+console.log("Post count:", totalPosts);
+
+// true
+let _totalPosts = 0;
+
+async function getPosts(userId) {
+  const users = [
+    { id: 1, posts: 5 },
+    { id: 2, posts: 3 },
+  ];
+  await sleep(Math.random() * 1000);
+  return users.find((user) => user.id === userId).posts;
+}
+
+async function addPosts(userId) {
+  const posts = await getPosts(userId);
+  totalPosts += posts; // variable is read and immediately updated
+}
+
+await Promise.all([addPosts(1), addPosts(2)]);
+console.log("Post count:", totalPosts);

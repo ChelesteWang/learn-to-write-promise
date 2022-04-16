@@ -160,3 +160,73 @@ async function addPosts(userId) {
 
 await Promise.all([addPosts(1), addPosts(2)]);
 console.log("Post count:", totalPosts);
+
+/**
+ * 返回异步结果时不一定要写 await ，如果你要等待一个 Promise，然后又要立刻返回它，这可能是不必要的。
+ */
+
+// false
+async () => {
+  try {
+    return await getUser(userId);
+  } catch (error) {
+    // Handle getUser error
+  }
+};
+
+// true
+async () => {
+  try {
+    const user = await getUser(userId);
+    return user;
+  } catch (error) {
+    // Handle getUser error
+  }
+};
+
+/**
+ * 建议在 reject Promise 时强制使用 Error 对象，这样可以更方便的追踪错误堆栈。
+ */
+
+// false
+Promise.reject("An error occurred");
+
+// true
+Promise.reject(new Error("An error occurred"));
+
+/**
+ * 不建议 await 非 Promise 函数或值。
+ * */
+
+// false
+function getValue() {
+  return someValue;
+}
+
+await getValue();
+
+// true
+async function getValue() {
+  return someValue;
+}
+
+await getValue();
+
+/**
+ * 强制在异步回调里进行异常处理。
+ */
+
+// false
+function callback(err, data) {
+  console.log(data);
+}
+
+// true
+function callback(err, data) {
+  if (err) {
+    console.log(err);
+    return;
+  }
+
+  console.log(data);
+}

@@ -55,3 +55,23 @@ Promise.resolve()
 Promise.resolve()
   .then(() => setTimeout(() => callback(null, "data"), 0))
   .catch((err) => setTimeout(() => callback(err.message, null), 0));
+
+/**
+ * 确保在 then() 或 catch() 中，我们总是返回或抛出一个原始值，而不是包装在 Promise 中。解决或 Promise.reject
+ */
+
+// false
+myPromise.then(function (val) {
+  return Promise.resolve(val * 2);
+});
+myPromise.then(function (val) {
+  return Promise.reject("bad thing");
+});
+
+// true
+myPromise.then(function (val) {
+  return val * 2;
+});
+myPromise.then(function (val) {
+  throw "bad thing";
+});

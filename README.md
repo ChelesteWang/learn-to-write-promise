@@ -1,6 +1,6 @@
 # learn-to-write-promise
 
-Promise 规范实践
+Promise 规范最佳实践
 
 ## 确保每一个 then 返回中都有一个 Promise 对象
 

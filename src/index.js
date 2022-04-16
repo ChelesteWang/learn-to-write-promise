@@ -109,10 +109,6 @@ for (const url of urls) {
   const response = await fetch(url);
 }
 
-/**
- * 不建议将赋值操作和 await 组合使用，这可能会导致条件竞争。
- * */
-
 // true
 const responses = [];
 for (const url of urls) {
@@ -121,6 +117,10 @@ for (const url of urls) {
 }
 
 await Promise.all(responses);
+
+/**
+ * 不建议将赋值操作和 await 组合使用，这可能会导致条件竞争。
+ * */
 
 // false
 let totalPosts = 0;
